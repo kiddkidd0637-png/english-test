@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英語考題工坊｜快速出題</title>
+  <style>
+    :root {
+      --ink: #17252f;
+      --muted: #61727c;
+      --paper: #f7f4ee;
+      --panel: #fffdfa;
+      --line: #e2ddd2;
+      --teal: #147d76;
+      --teal-dark: #0b5c59;
+      --coral: #e86b50;
+      --yellow: #f2c94c;
+      --blue: #3867a7;
+      --shadow: 0 14px 35px rgba(32, 51, 57, .09);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app-shell { min-height: 100vh; }
+    .topbar { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 38px; background: var(--ink); color: #fff; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 35px; height: 35px; display: grid; place-items: center; background: var(--yellow); color: var(--ink); font-weight: 900; transform: rotate(-6deg); }
+    .brand-name { font-family: Georgia, serif; font-size: 20px; letter-spacing: .03em; }
+    .brand-tag { margin-left: 5px; color: #b8cbd0; font-size: 12px; }
+    .top-actions { display: flex; gap: 10px; }
+    .ghost-top { padding: 9px 14px; border: 1px solid #48606a; border-radius: 4px; color: #d8e7e8; background: transparent; }
+    .workspace-switch { display: flex; gap: 7px; margin: 24px auto 0; max-width: 1500px; padding: 0 38px; }
+    .switch-button { padding: 11px 16px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-weight: 800; }
+    .switch-button.active, .switch-button:hover { border-color: var(--teal); background: #eaf7f3; color: var(--teal-dark); }
+    .hero { padding: 42px 7vw 34px; background: linear-gradient(112deg, #e2eee9 0%, #eff4eb 52%, #f9ecda 100%); border-bottom: 1px solid #d7e0d9; }
+    .eyebrow { margin: 0 0 9px; color: var(--teal); font-size: 12px; letter-spacing: .16em; font-weight: 800; }
+    h1 { max-width: 720px; margin: 0; font-family: Georgia, "Noto Serif TC", serif; font-size: clamp(36px, 5vw, 65px); line-height: 1.03; letter-spacing: -.04em; }
+    .hero-copy { max-width: 620px; margin: 18px 0 0; color: #536871; line-height: 1.8; font-size: 15px; }
+    .layout { display: grid; grid-template-columns: 240px minmax(0, 1fr) 292px; gap: 22px; max-width: 1500px; margin: 0 auto; padding: 30px 38px 60px; }
+    .side-nav, .summary-panel, .workspace-panel { background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .side-nav { align-self: start; padding: 22px 16px; }
+    .nav-title, .panel-kicker { margin: 0 0 15px 8px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .grade-tab { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; margin: 3px 0; border: 0; border-left: 3px solid transparent; background: transparent; color: var(--ink); text-align: left; }
+    .grade-tab:hover, .grade-tab.active { border-left-color: var(--coral); background: #fff3ec; color: #a94331; }
+    .grade-tab strong { font-size: 16px; }
+    .grade-tab span { color: var(--muted); font-size: 12px; }
+    .side-note { margin: 28px 8px 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .workspace-panel { padding: 27px; min-width: 0; }
+    .workspace-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .workspace-head h2 { margin: 0 0 5px; font-family: Georgia, serif; font-size: 28px; }
+    .workspace-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .auto-badge { padding: 9px 12px; border-radius: 2px; background: #e6f2ed; color: var(--teal-dark); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .section { padding-top: 24px; }
+    .section-title { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; font-weight: 900; }
+    .section-number { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
+    .type-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .type-card { min-height: 86px; display: flex; flex-direction: column; justify-content: space-between; padding: 14px; border: 1px solid var(--line); background: #fff; }
+    .type-card:hover { border-color: var(--teal); }
+    .type-card.selected { border: 2px solid var(--teal); padding: 13px; background: #edf8f5; }
+    .type-card label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+    .type-card input { accent-color: var(--teal); margin-top: 4px; }
+    .type-name { font-weight: 800; font-size: 14px; }
+    .type-desc { margin: 7px 0 0 24px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .type-count { align-self: flex-end; display: flex; align-items: center; gap: 5px; margin-top: 11px; color: var(--muted); font-size: 11px; }
+    .count-input { width: 48px; padding: 4px; border: 1px solid #cad4d1; background: #fff; text-align: center; }
+    .settings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .field label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .field input, .field select { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 2px; background: #fff; color: var(--ink); }
+    .primary-action { width: 100%; margin-top: 24px; padding: 14px 18px; border: 0; border-radius: 2px; background: var(--coral); color: #fff; font-weight: 900; }
+    .primary-action:hover { background: #cd543d; }
+    .summary-panel { align-self: start; padding: 23px; }
+    .summary-title { margin: 0 0 4px; font-family: Georgia, serif; font-size: 25px; }
+    .summary-sub { margin: 0 0 22px; color: var(--muted); font-size: 12px; }
+    .score-ring { width: 146px; height: 146px; display: grid; place-items: center; margin: 0 auto 19px; border-radius: 50%; background: conic-gradient(var(--teal) 0 100%, #e9eeeb 100%); position: relative; }
+    .score-ring::after { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: var(--panel); }
+    .score-ring-content { z-index: 1; text-align: center; }
+    .score-number { display: block; font-family: Georgia, serif; font-size: 40px; line-height: 1; }
+    .score-label { color: var(--muted); font-size: 11px; }
+    .stat-row { display: flex; justify-content: space-between; padding: 13px 0; border-top: 1px solid var(--line); font-size: 13px; }
+    .stat-row span { color: var(--muted); }
+    .stat-row strong { color: var(--ink); }
+    .allocation { margin-top: 15px; }
+    .allocation-row { display: grid; grid-template-columns: 1fr 54px; gap: 10px; align-items: center; margin: 12px 0; font-size: 12px; }
+    .allocation-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .bar { height: 6px; background: #edf0eb; }
+    .bar i { display: block; height: 100%; background: var(--teal); }
+    .allocation-points { color: var(--teal-dark); font-weight: 900; text-align: right; }
+    .export-button { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 25px; padding: 12px; border: 1px solid var(--teal); background: transparent; color: var(--teal-dark); font-weight: 800; }
+    .export-button:hover { background: #eaf7f3; }
+    .bank-status { margin: 14px 0 -5px; color: var(--teal-dark); font-size: 12px; }
+    .hidden-view { display: none !important; }
+    .bank-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; max-width: 1500px; margin: 0 auto; padding: 30px 38px 60px; }
+    .bank-panel, .bank-filter { padding: 25px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .bank-filter { align-self: start; }
+    .bank-filter h2, .bank-panel h2 { margin: 0 0 6px; font-family: Georgia, serif; font-size: 26px; }
+    .bank-filter p, .bank-panel .panel-description { margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .filter-tabs { display: grid; gap: 6px; margin-bottom: 24px; }
+    .filter-tab { padding: 11px 12px; border: 0; border-left: 3px solid transparent; background: transparent; color: var(--ink); text-align: left; }
+    .filter-tab.active, .filter-tab:hover { border-left-color: var(--coral); background: #fff3ec; color: #a94331; font-weight: 800; }
+    .bank-toolbar { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-bottom: 18px; }
+    .bank-toolbar select, .bank-toolbar input { min-height: 40px; padding: 9px 11px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .bank-toolbar input { flex: 1 1 190px; }
+    .bank-count { margin-left: auto; color: var(--muted); font-size: 12px; }
+    .add-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px; padding: 17px; background: #f3f8f4; border: 1px solid #dce9e2; }
+    .add-form .wide { grid-column: 1 / -1; }
+    .add-form textarea, .add-form input, .add-form select { width: 100%; padding: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .add-form textarea { min-height: 76px; resize: vertical; }
+    .add-form label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 800; }
+    .image-preview { display: none; max-width: 100%; max-height: 220px; margin-top: 10px; border: 1px solid var(--line); object-fit: contain; }
+    .ocr-status { min-height: 18px; color: var(--muted); font-size: 11px; }
+    .small-action { padding: 10px 15px; border: 0; background: var(--teal); color: #fff; font-weight: 800; }
+    .secondary-action { padding: 10px 15px; border: 1px solid var(--teal); background: transparent; color: var(--teal-dark); font-weight: 800; }
+    .bank-list { display: grid; gap: 9px; }
+    .bank-item { display: grid; grid-template-columns: 28px 105px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line); }
+    .bank-item input { margin-top: 3px; accent-color: var(--teal); }
+    .bank-item-type { color: var(--teal-dark); font-size: 11px; font-weight: 900; }
+    .bank-item-content { color: #44545b; line-height: 1.55; font-size: 13px; }
+    .bank-preview-trigger { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; line-height: inherit; text-align: left; cursor: pointer; }
+    .bank-preview-trigger:hover { color: var(--teal-dark); text-decoration: underline; text-underline-offset: 3px; }
+    .bank-item-meta { color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .question-detail { margin-top: 22px; padding: 20px; border-left: 4px solid var(--coral); background: #fff8f2; }
+    .question-detail h3 { margin: 0 0 12px; font-family: Georgia, serif; }
+    .question-detail p { margin: 7px 0; color: #44545b; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+    .selected-panel { max-width: 1500px; margin: 0 auto 60px; padding: 0 38px; }
+    .selected-inner { padding: 25px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .selected-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+    .selected-head h2 { margin: 0 0 5px; font-family: Georgia, serif; }
+    .selected-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .empty-state { padding: 25px 0; color: var(--muted); font-size: 13px; }
+    .question-preview { display: none; max-width: 1500px; margin: 0 auto 60px; padding: 0 38px; }
+    .question-preview.visible { display: block; }
+    .preview-inner { padding: 27px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .preview-head { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 16px; }
+    .preview-head h2 { margin: 0; font-family: Georgia, serif; }
+    .clear-button { border: 0; background: transparent; color: var(--muted); font-size: 12px; }
+    .question-list { display: grid; gap: 10px; }
+    .question-row { display: grid; grid-template-columns: 34px 125px minmax(0, 1fr) 75px; gap: 13px; align-items: center; padding: 13px 0; border-top: 1px solid var(--line); font-size: 13px; }
+    .q-number { color: var(--coral); font-family: Georgia, serif; font-size: 20px; }
+    .q-type { color: var(--teal-dark); font-size: 11px; font-weight: 900; }
+    .q-content { color: #44545b; line-height: 1.6; }
+    .q-score { color: var(--muted); text-align: right; font-size: 12px; }
+    .toast { position: fixed; right: 25px; bottom: 25px; max-width: 320px; padding: 14px 17px; background: var(--ink); color: #fff; box-shadow: var(--shadow); transform: translateY(140%); transition: transform .25s ease; font-size: 13px; z-index: 10; }
+    .toast.show { transform: translateY(0); }
+    .notes-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; max-width: 1500px; margin: 0 auto; padding: 30px 38px 60px; }
+    .notes-filter, .notes-panel { padding: 25px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .notes-filter { align-self: start; }
+    .notes-filter h2, .notes-panel h2 { margin: 0 0 6px; font-family: Georgia, serif; font-size: 26px; }
+    .notes-filter p, .notes-panel .panel-description { margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .notes-tabs { display: grid; gap: 6px; margin-bottom: 24px; }
+    .notes-tab { padding: 11px 12px; border: 0; border-left: 3px solid transparent; background: transparent; color: var(--ink); text-align: left; }
+    .notes-tab.active, .notes-tab:hover { border-left-color: var(--teal); background: #eaf7f3; color: var(--teal-dark); font-weight: 800; }
+    .notes-toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 20px; }
+    .notes-toolbar input, .notes-toolbar select { min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .notes-toolbar input { flex: 1 1 240px; }
+    .notes-count { width: 100%; color: var(--muted); font-size: 12px; }
+    .word-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .word-card { min-height: 118px; padding: 15px; border: 1px solid var(--line); background: #fff; }
+    .word-card:hover { border-color: var(--teal); transform: translateY(-2px); transition: transform .18s ease; }
+    .word-card h3 { margin: 0 0 4px; font-family: Georgia, serif; font-size: 21px; }
+    .word-card h3 mark { padding: 0 2px; background: #cfe9ff; color: #14569a; border-radius: 2px; }
+    .word-meta { color: var(--teal-dark); font-size: 11px; font-weight: 800; }
+    .word-meaning { margin: 10px 0 4px; font-weight: 800; }
+    .word-example { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .grammar-list { display: grid; gap: 10px; }
+    .grammar-card { border-top: 1px solid var(--line); padding: 17px 0 5px; }
+    .grammar-card:first-child { border-top: 0; padding-top: 0; }
+    .grammar-card h3 { margin: 0 0 8px; font-size: 17px; }
+    .grammar-card h3 span { display: inline-block; margin-right: 8px; color: var(--coral); font-family: Georgia, serif; }
+    .grammar-card p { margin: 5px 0; color: #44545b; line-height: 1.65; font-size: 13px; }
+    .grammar-rule { padding: 10px 12px; background: #f3f8f4; color: var(--teal-dark) !important; font-weight: 800; }
+    .grammar-example { color: var(--muted) !important; }
+    .flashcard-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 22px; max-width: 1500px; margin: 0 auto; padding: 30px 38px 60px; }
+    .flashcard-filter, .flashcard-panel { padding: 25px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .flashcard-filter { align-self: start; }
+    .flashcard-filter h2, .flashcard-panel h2 { margin: 0 0 6px; font-family: Georgia, serif; font-size: 26px; }
+    .flashcard-filter p, .flashcard-panel .panel-description { margin: 0 0 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .flashcard-form { display: grid; gap: 12px; }
+    .flashcard-form input, .flashcard-form textarea { width: 100%; padding: 10px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .flashcard-form textarea { min-height: 66px; resize: vertical; }
+    .flashcard-form label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 800; }
+    .flashcard-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 20px 0; }
+    .flashcard-toolbar input { flex: 1 1 190px; min-height: 40px; padding: 9px 11px; border: 1px solid var(--line); background: #fff; }
+    .flashcard-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .flashcard { position: relative; min-height: 150px; padding: 17px; border: 1px solid var(--line); background: #fff; }
+    .flashcard:hover { border-color: var(--teal); }
+    .flashcard h3 { margin: 0 0 5px; font-family: Georgia, serif; font-size: 23px; }
+    .flashcard-meaning { margin: 12px 0 4px; font-weight: 800; }
+    .flashcard-example { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .flashcard-remove { position: absolute; top: 9px; right: 10px; border: 0; background: transparent; color: var(--muted); font-size: 16px; }
+    .practice-section { margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .practice-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .practice-head h3 { margin: 0; font-family: Georgia, serif; font-size: 22px; }
+    .practice-card { margin-top: 14px; padding: 22px; background: #f3f8f4; border: 1px solid #dce9e2; }
+    .practice-direction { color: var(--teal-dark); font-size: 11px; font-weight: 900; letter-spacing: .08em; }
+    .practice-question { margin: 10px 0 16px; font-family: Georgia, serif; font-size: 30px; }
+    .practice-answer { display: flex; gap: 9px; }
+    .practice-answer input { flex: 1; padding: 11px; border: 1px solid var(--line); background: #fff; }
+    .practice-feedback { min-height: 22px; margin: 12px 0 0; font-weight: 800; }
+    .practice-feedback.correct { color: var(--teal-dark); }
+    .practice-feedback.wrong { color: #b24734; }
+    .practice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .secondary-action { padding: 10px 14px; border: 1px solid var(--teal); background: transparent; color: var(--teal-dark); font-weight: 800; }
+    .secondary-action:hover { background: #eaf7f3; }
+    @media (max-width: 1100px) { .flashcard-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 1100px) { .word-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 700px) { .notes-layout, .flashcard-layout { display: block; padding: 20px 16px 45px; } .notes-filter, .notes-panel, .flashcard-filter, .flashcard-panel { padding: 19px; } .notes-filter, .flashcard-filter { margin-bottom: 16px; } .word-grid, .flashcard-list { grid-template-columns: 1fr; } .practice-answer { display: block; } .practice-answer .small-action { width: 100%; margin-top: 8px; } }
+    @media (max-width: 1100px) { .layout { grid-template-columns: 210px minmax(0, 1fr); } .summary-panel { grid-column: 1 / -1; } .summary-panel .allocation { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 25px; } .summary-panel .export-button { max-width: 300px; } }
+    @media (max-width: 700px) { .topbar { height: auto; padding: 17px 20px; align-items: flex-start; gap: 15px; } .brand-tag, .ghost-top { display: none; } .hero { padding: 34px 22px 27px; } h1 { font-size: 42px; } .workspace-switch { overflow-x: auto; padding: 0 16px; } .switch-button { white-space: nowrap; } .layout, .bank-layout { display: block; padding: 20px 16px 45px; } .side-nav { margin-bottom: 16px; } .grade-tab { display: inline-flex; width: 32%; padding: 10px 7px; border-left: 0; border-bottom: 3px solid transparent; } .grade-tab:hover, .grade-tab.active { border-bottom-color: var(--coral); border-left-color: transparent; } .grade-tab span { display: none; } .workspace-panel, .summary-panel, .bank-panel, .bank-filter { padding: 19px; } .workspace-head { display: block; } .auto-badge { display: inline-block; margin-top: 15px; } .type-grid, .settings-grid, .add-form { grid-template-columns: 1fr; } .add-form .wide { grid-column: auto; } .question-preview, .selected-panel { padding: 0 16px; } .question-row { grid-template-columns: 28px 1fr 55px; } .q-type { grid-column: 2; grid-row: 1; } .q-content { grid-column: 2; grid-row: 2; } .q-score { grid-column: 3; grid-row: 1 / span 2; } .bank-item { grid-template-columns: 25px 1fr auto; } .bank-item-type { grid-column: 2; } .bank-item-content { grid-column: 2; } .bank-item-meta { grid-column: 3; grid-row: 1 / span 2; } .bank-count { margin-left: 0; width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">英</div><div class="brand-name">英語考題工坊 <span class="brand-tag">快速命題工具</span></div></div>
+      <div class="top-actions"><button class="ghost-top" id="loadDemo">載入示範題庫</button><button class="ghost-top" id="resetAll">清除設定</button></div>
+    </header>
+    <section class="hero">
+      <p class="eyebrow">TEACHER'S DESK / 01</p>
+      <h1>把出題時間，留給真正的教學</h1>
+      <p class="hero-copy">選擇年級與題型，系統會替你配置題數與 100 分配分</p>
+    </section>
+    <nav class="workspace-switch" aria-label="工作區切換">
+      <button class="switch-button active" data-view="generatorView">快速出題</button>
+      <button class="switch-button" data-view="bankView">我的題庫</button>
+      <button class="switch-button" data-view="selectedView">我的考卷（自選題）</button>
+      <button class="switch-button" data-view="notesView">重點整理</button>
+      <button class="switch-button" data-view="flashcardView">我的字卡</button>
+    </nav>
+    <main class="layout" id="generatorView">
+      <aside class="side-nav">
+        <p class="nav-title">選擇年級</p>
+        <button class="grade-tab active" data-grade="grade1"><strong>國一</strong><span>七年級</span></button>
+        <button class="grade-tab" data-grade="grade2"><strong>國二</strong><span>八年級</span></button>
+        <button class="grade-tab" data-grade="grade3"><strong>國三</strong><span>九年級</span></button>
+        <p class="side-note">題型依照國中會考常見出題方向整理，可自由混搭並調整題數。</p>
+      </aside>
+      <section class="workspace-panel">
+        <div class="workspace-head"><div><h2 id="gradeTitle">國一・基礎建立</h2><p id="gradeDescription">打穩字彙、文法與句型基礎，適合七年級課程。</p></div><div class="auto-badge">✓ 配分自動平衡至 100 分</div></div>
+        <p class="bank-status">● 目前使用內建題庫隨機抽題；每次按下產生題目都會重新洗牌。</p>
+        <div class="section">
+          <div class="section-title"><span class="section-number">1</span>選擇題型與題數</div>
+          <div class="type-grid" id="typeGrid"></div>
+        </div>
+        <div class="section">
+          <div class="section-title"><span class="section-number">2</span>考卷設定</div>
+          <div class="settings-grid">
+            <div class="field"><label for="paperTitle">考卷標題</label><input id="paperTitle" value="國中英語練習卷" /></div>
+            <div class="field"><label for="questionOrder">題目排序</label><select id="questionOrder"><option value="grouped">依題型分組</option><option value="mixed">題型混合</option></select></div>
+          </div>
+        </div>
+        <button class="primary-action" id="generateButton">產生考題預覽　→</button>
+      </section>
+      <aside class="summary-panel">
+        <p class="panel-kicker">Score design</p><h2 class="summary-title">配分總覽</h2><p class="summary-sub">會依各題型難度自動分配，總分固定 100。</p>
+        <div class="score-ring"><div class="score-ring-content"><span class="score-number">100</span><span class="score-label">TOTAL POINTS</span></div></div>
+        <div class="stat-row"><span>目前題數</span><strong id="totalCount">20 題</strong></div><div class="stat-row"><span>平均每題</span><strong id="averageScore">5.0 分</strong></div>
+        <div class="allocation" id="allocation"></div>
+        <button class="export-button" id="exportButton">▣　匯出 Word 題目檔</button>
+      </aside>
+    </main>
+    <section class="bank-layout hidden-view" id="bankView">
+      <aside class="bank-filter">
+        <p class="panel-kicker">Question bank</p>
+        <h2>題庫分類</h2>
+        <p>先選年級，再用題型整理與管理題目。</p>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-bank-grade="all">全部年級</button>
+          <button class="filter-tab" data-bank-grade="grade1">國一・七年級</button>
+          <button class="filter-tab" data-bank-grade="grade2">國二・八年級</button>
+          <button class="filter-tab" data-bank-grade="grade3">國三・九年級</button>
+        </div>
+        <div class="field"><label for="bankTypeFilter">題型分類</label><select id="bankTypeFilter"><option value="all">全部題型</option></select></div>
+      </aside>
+      <section class="bank-panel">
+        <div class="selected-head"><div><h2>我的題庫</h2><p class="panel-description">勾選題目後加入目前考卷；題目會保存在這台裝置的瀏覽器中。</p></div><button class="small-action" id="addSelectedButton">加入勾選題目</button></div>
+        <div class="add-form">
+          <div class="wide"><label for="newQuestionContent">新增題目內容</label><textarea id="newQuestionContent" placeholder="例如：She has lived in Taipei ____ 2018."></textarea></div>
+          <div><label for="newQuestionGrade">所屬年級</label><select id="newQuestionGrade"><option value="grade1">國一</option><option value="grade2">國二</option><option value="grade3">國三</option></select></div>
+          <div><label for="newQuestionType">題型</label><select id="newQuestionType"></select></div>
+          <div><label for="newQuestionAnswer">答案（可選填）</label><input id="newQuestionAnswer" placeholder="例如：since" /></div>
+          <div><button class="small-action" id="saveQuestionButton">＋ 儲存到題庫</button></div>
+          <div class="wide"><label for="questionImage">從照片擷取題目文字</label><input id="questionImage" type="file" accept="image/*" capture="environment" /><img class="image-preview" id="imagePreview" alt="待辨識的題目照片預覽" /><p class="ocr-status" id="ocrStatus">可拍照或選擇圖片；辨識結果會填入上方題目欄位，請檢查後再儲存。</p><button class="secondary-action" id="recognizeImageButton" type="button" disabled>辨識照片文字</button></div>
+          <div class="wide"><label for="importQuestionFile">批次匯入題庫（JSON 或 CSV）</label><input id="importQuestionFile" type="file" accept=".json,.csv" /></div>
+        </div>
+        <div class="bank-toolbar"><input id="bankSearch" placeholder="搜尋題目內容或答案..." /><span class="bank-count" id="bankCount"></span></div>
+        <div class="bank-list" id="bankList"></div>
+        <aside class="question-detail hidden-view" id="questionDetail" aria-live="polite"></aside>
+      </section>
+    </section>
+    <section class="selected-panel hidden-view" id="selectedView">
+      <div class="selected-inner"><div class="selected-head"><div><h2>我的考卷・自選題</h2><p>這裡會集中顯示你指定要加強的題目；產生考題時會優先使用它們。</p></div><button class="small-action" id="removeSelectedButton">移除勾選題目</button></div><div class="bank-list" id="selectedList"></div></div>
+    </section>
+    <section class="notes-layout hidden-view" id="notesView">
+      <aside class="notes-filter">
+        <p class="panel-kicker">Study notes</p>
+        <h2>整理範圍</h2>
+        <p>用七千單字範圍與國中三年文法重點，快速找到要複習的內容。</p>
+        <div class="notes-tabs">
+          <button class="notes-tab active" data-notes-tab="words">七千單字</button>
+          <button class="notes-tab" data-notes-tab="grammar">文法重點</button>
+        </div>
+        <div class="field"><label for="notesGradeFilter">年級範圍</label><select id="notesGradeFilter"><option value="all">國一到國三</option><option value="grade1">國一・七年級</option><option value="grade2">國二・八年級</option><option value="grade3">國三・九年級</option></select></div>
+      </aside>
+      <section class="notes-panel">
+        <div class="selected-head"><div><h2 id="notesTitle">七千單字範圍</h2><p class="panel-description" id="notesDescription">依年級瀏覽國中常用核心字彙，搭配詞性、中文與例句記憶。</p></div><span class="auto-badge">可搜尋・可篩選</span></div>
+        <div id="wordsContent">
+          <div class="notes-toolbar"><input id="wordSearch" placeholder="搜尋英文、中文或例句..." /><select id="wordPartFilter"><option value="all">全部詞性</option><option value="n.">名詞</option><option value="v.">動詞</option><option value="adj.">形容詞</option><option value="adv.">副詞</option><option value="phr.">片語</option></select><span class="notes-count" id="wordCount"></span></div>
+          <div class="word-grid" id="wordGrid"></div>
+        </div>
+        <div id="grammarContent" class="hidden-view"><div class="notes-toolbar"><input id="grammarSearch" list="grammarSuggestions" placeholder="搜尋文法，例如：感官、被動、完成式..." /><datalist id="grammarSuggestions"></datalist><span class="notes-count" id="grammarCount"></span></div><div class="grammar-list" id="grammarList"></div></div>
+      </section>
+    </section>
+    <section class="flashcard-layout hidden-view" id="flashcardView">
+      <aside class="flashcard-filter">
+        <p class="panel-kicker">My vocabulary</p>
+        <h2>收錄不熟單字</h2>
+        <p>把錯過、容易忘記或想加強的單字放進自己的字卡清單。</p>
+        <form class="flashcard-form" id="flashcardForm">
+          <div><label for="flashcardWord">英文單字</label><input id="flashcardWord" required placeholder="例如：environment" /></div>
+          <div><label for="flashcardMeaning">中文意思</label><input id="flashcardMeaning" required placeholder="例如：環境" /></div>
+          <div><label for="flashcardExample">例句（選填）</label><textarea id="flashcardExample" placeholder="例如：We should protect the environment."></textarea></div>
+          <button class="small-action" type="submit">＋ 加入我的字卡</button>
+        </form>
+      </aside>
+      <section class="flashcard-panel">
+        <div class="selected-head"><div><h2>我的單字清單</h2><p class="panel-description">可搜尋、翻卡，也可以直接用這份清單出題練習。</p></div><span class="auto-badge" id="flashcardCount">0 張字卡</span></div>
+        <div class="flashcard-toolbar"><input id="flashcardSearch" placeholder="搜尋我的單字或中文意思..." /><button class="secondary-action" id="startPracticeButton" type="button">開始背單字測驗</button></div>
+        <div class="flashcard-list" id="flashcardList"></div>
+        <div class="practice-section hidden-view" id="practiceSection">
+          <div class="practice-head"><div><h3>字卡小測驗</h3><p class="panel-description" id="practiceProgress"></p></div><div class="practice-actions"><button class="secondary-action" id="practiceModeButton" type="button">切換英翻中</button><button class="clear-button" id="closePracticeButton" type="button">結束測驗 ×</button></div></div>
+          <div class="practice-card"><div class="practice-direction" id="practiceDirection">看中文，拼出英文</div><div class="practice-question" id="practiceQuestion"></div><div class="practice-answer"><input id="practiceInput" placeholder="輸入答案後按 Enter" autocomplete="off" /><button class="small-action" id="checkPracticeButton" type="button">檢查答案</button></div><p class="practice-feedback" id="practiceFeedback"></p><button class="secondary-action hidden-view" id="nextPracticeButton" type="button">下一題 →</button></div>
+        </div>
+      </section>
+    </section>
+    <section class="question-preview" id="previewSection"><div class="preview-inner"><div class="preview-head"><h2>考題預覽</h2><button class="clear-button" id="clearPreview">收起預覽 ×</button></div><div class="question-list" id="questionList"></div></div></section>
+    <div class="toast" id="toast"></div>
+  </div>
+  <script>
+    const typeDefinitions = {
+      single: { name: '單選題', desc: '字彙、文法與閱讀理解', base: 1.0, samples: ['Which word best completes the sentence? The students are ___ for the English test.', 'What does the underlined word mean in the sentence?', 'According to the passage, which statement is true?'] },
+      fill: { name: '填充題', desc: '文法與字彙活用', base: 1.15, samples: ['My brother ___ (go) to school by bus every day.', 'Please remember ___ (bring) your notebook tomorrow.', 'The movie was so ___ that everyone laughed.'] },
+      cloze: { name: '文意選填', desc: '段落脈絡與詞性判斷', base: 1.3, samples: ['Choose the best word for the blank according to the context.', 'Read the paragraph and select the appropriate word.', 'Use the clues before and after the blank to decide.'] },
+      sixfive: { name: '六五起始分', desc: '克漏字與綜合語文應用', base: 1.35, samples: ['Choose the best answer for each blank in the short passage.', 'Look at the whole paragraph before answering the question.', 'The sentence needs a word that matches both meaning and grammar.'] },
+      translation: { name: '句型翻譯', desc: '中翻英與核心句型', base: 1.45, samples: ['這本書比那本書有趣。', '他昨天沒有完成作業。', '如果明天下雨，我們就待在家裡。'] },
+      vocabulary: { name: '文意字彙', desc: '會考核心字彙拼寫', base: 1.25, samples: ['The library is a quiet place to r___ books.', 'We should protect the e___ and reduce plastic waste.', 'She felt p___ of her excellent performance.'] },
+      reading: { name: '閱讀理解', desc: '短文閱讀與資訊判讀', base: 1.4, samples: ['Read the short passage and answer the question.', 'What is the main idea of the article?', 'Which of the following can be inferred from the text?'] }
+    };
+    const gradeData = {
+      grade1: { title: '國一・基礎建立', description: '打穩字彙、文法與句型基礎，適合七年級課程。', defaults: { single: 5, fill: 5, cloze: 2, sixfive: 2, translation: 2, vocabulary: 4, reading: 0 } },
+      grade2: { title: '國二・能力養成', description: '加強篇章理解與語言應用，銜接會考題型。', defaults: { single: 5, fill: 4, cloze: 3, sixfive: 2, translation: 2, vocabulary: 4, reading: 2 } },
+      grade3: { title: '國三・會考衝刺', description: '整合閱讀、克漏字與句型，模擬會考實戰節奏。', defaults: { single: 6, fill: 3, cloze: 3, sixfive: 3, translation: 2, vocabulary: 4, reading: 4 } }
+    };
+    const bankStorageKey = 'english-question-bank-v1';
+    const selectedStorageKey = 'english-selected-question-ids-v1';
+    const flashcardStorageKey = 'english-my-flashcards-v1';
+    const curriculumExamples = {
+      grade1: [
+        { type: 'single', content: 'Kevin is twelve years old. He is a ___ student.', answer: 'young' },
+        { type: 'single', content: 'There ___ two pencils and an eraser on the desk.', answer: 'are' },
+        { type: 'fill', content: 'I ___ (be) from Kaohsiung, but I live in Tainan now.', answer: 'am' },
+        { type: 'fill', content: 'Please ___ (not run) in the classroom.', answer: 'do not run' },
+        { type: 'cloze', content: 'Amy gets up early every day. She washes her face and ___ breakfast before school.', answer: 'eats' },
+        { type: 'cloze', content: 'My family has a dog. ___ name is Lucky, and it likes to play outside.', answer: 'Its' },
+        { type: 'sixfive', content: 'Tom has a basketball game today, ___ he gets ready early in the morning.', answer: 'so' },
+        { type: 'sixfive', content: 'The box is too heavy. Can you help ___ carry it?', answer: 'me' },
+        { type: 'translation', content: '我每天六點半起床。', answer: 'I get up at six thirty every day.' },
+        { type: 'translation', content: '這些是我的新同學。', answer: 'These are my new classmates.' },
+        { type: 'vocabulary', content: 'Please turn on the l___ because the room is dark.', answer: 'light' },
+        { type: 'vocabulary', content: 'We use a k___ to open the door.', answer: 'key' },
+        { type: 'reading', content: 'Ben rides his bike to school. It takes him fifteen minutes. How does Ben go to school?', answer: 'By bike.' }
+      ],
+      grade2: [
+        { type: 'single', content: 'Mia has ___ this book twice, so she knows the story well.', answer: 'read' },
+        { type: 'single', content: 'The students were tired, ___ they continued working on the project.', answer: 'but' },
+        { type: 'fill', content: 'Jack ___ (visit) his grandparents last Sunday.', answer: 'visited' },
+        { type: 'fill', content: 'The teacher asked us ___ (finish) the worksheet before lunch.', answer: 'to finish' },
+        { type: 'cloze', content: 'Many people use reusable bags because they want to ___ less plastic waste.', answer: 'make' },
+        { type: 'cloze', content: 'Lena was late for school because she ___ her alarm clock.', answer: 'missed' },
+        { type: 'sixfive', content: 'David enjoys cooking. He often watches videos ___ he tries a new recipe.', answer: 'before' },
+        { type: 'sixfive', content: 'The museum is free today, ___ many families decided to visit it.', answer: 'so' },
+        { type: 'translation', content: '我已經完成我的家庭作業了。', answer: 'I have already finished my homework.' },
+        { type: 'translation', content: '如果你需要幫忙，請告訴我。', answer: 'If you need help, please tell me.' },
+        { type: 'vocabulary', content: 'The concert was c___ because the singer had a beautiful voice.', answer: '精彩的' },
+        { type: 'vocabulary', content: 'We should show r___ for people with different opinions.', answer: 'respect' },
+        { type: 'reading', content: 'The school started a lunch-sharing program. Students can leave unopened food for classmates who need it. What is the program for?', answer: 'To share extra food.' }
+      ],
+      grade3: [
+        { type: 'single', content: 'The woman ___ lives next door is a famous writer.', answer: 'who' },
+        { type: 'single', content: 'By the time we arrived, the movie ___.', answer: 'had started' },
+        { type: 'fill', content: 'This bridge ___ (build) more than one hundred years ago.', answer: 'was built' },
+        { type: 'fill', content: 'I am interested in ___ (learn) how to make bread.', answer: 'learning' },
+        { type: 'cloze', content: 'Although the weather was terrible, the runners did not ___ the race.', answer: 'give up' },
+        { type: 'cloze', content: 'The article explains how small choices can have a big ___ on the environment.', answer: 'effect' },
+        { type: 'sixfive', content: 'Ella practiced every day, ___ she became more confident before the competition.', answer: 'and' },
+        { type: 'sixfive', content: 'The package was sent yesterday and is expected ___ arrive tomorrow.', answer: 'to' },
+        { type: 'translation', content: '除了星期日以外，這家商店每天都營業。', answer: 'The store is open every day except Sunday.' },
+        { type: 'translation', content: '這是我讀過最有趣的小說。', answer: 'This is the most interesting novel I have ever read.' },
+        { type: 'vocabulary', content: 'The scientist made an important d___ after years of research.', answer: 'discovery' },
+        { type: 'vocabulary', content: 'Please c___ your answer before you hand in the test.', answer: 'check' },
+        { type: 'reading', content: 'A town replaced several parking spaces with trees and benches. The project aims to make the streets cooler and more comfortable for people. What is the main purpose of the project?', answer: 'To improve the public space.' }
+      ]
+    };
+    const studyWords = [
+      { word: 'achieve', part: 'v.', meaning: '達成；實現', grade: 'grade3', example: 'She worked hard to achieve her goal.' },
+      { word: 'advice', part: 'n.', meaning: '建議', grade: 'grade2', example: 'My teacher gave me some good advice.' },
+      { word: 'allow', part: 'v.', meaning: '允許', grade: 'grade2', example: 'Our school does not allow students to use phones in class.' },
+      { word: 'although', part: 'conj.', meaning: '雖然', grade: 'grade3', example: 'Although it was raining, we went for a walk.' },
+      { word: 'appear', part: 'v.', meaning: '出現；似乎', grade: 'grade3', example: 'A rainbow appeared after the storm.' },
+      { word: 'borrow', part: 'v.', meaning: '借入', grade: 'grade1', example: 'May I borrow your pencil?' },
+      { word: 'careful', part: 'adj.', meaning: '小心的；仔細的', grade: 'grade1', example: 'Be careful when you cross the street.' },
+      { word: 'compare', part: 'v.', meaning: '比較', grade: 'grade2', example: 'Let us compare the two pictures.' },
+      { word: 'environment', part: 'n.', meaning: '環境', grade: 'grade2', example: 'We should protect the environment.' },
+      { word: 'experience', part: 'n.', meaning: '經驗；經歷', grade: 'grade3', example: 'It was an exciting experience for me.' },
+      { word: 'famous', part: 'adj.', meaning: '著名的', grade: 'grade1', example: 'This city is famous for its night market.' },
+      { word: 'improve', part: 'v.', meaning: '改善；進步', grade: 'grade2', example: 'Reading every day can improve your English.' },
+      { word: 'instead of', part: 'phr.', meaning: '代替；而不是', grade: 'grade3', example: 'I walked instead of taking the bus.' },
+      { word: 'journey', part: 'n.', meaning: '旅程', grade: 'grade2', example: 'The journey to the mountains took three hours.' },
+      { word: 'kind', part: 'adj.', meaning: '親切的；種類', grade: 'grade1', example: 'It was kind of you to help me.' },
+      { word: 'lend', part: 'v.', meaning: '借出', grade: 'grade2', example: 'Could you lend me your umbrella?' },
+      { word: 'necessary', part: 'adj.', meaning: '必要的', grade: 'grade3', example: 'It is necessary to get enough sleep.' },
+      { word: 'patient', part: 'adj.', meaning: '有耐心的', grade: 'grade2', example: 'Please be patient and wait for your turn.' },
+      { word: 'probably', part: 'adv.', meaning: '可能；大概', grade: 'grade3', example: 'He will probably arrive before noon.' },
+      { word: 'quiet', part: 'adj.', meaning: '安靜的', grade: 'grade1', example: 'The library is a quiet place to study.' },
+      { word: 'respect', part: 'v./n.', meaning: '尊重', grade: 'grade2', example: 'We should respect people with different opinions.' },
+      { word: 'responsible', part: 'adj.', meaning: '負責任的', grade: 'grade3', example: 'Everyone is responsible for keeping the room clean.' },
+      { word: 'similar', part: 'adj.', meaning: '相似的', grade: 'grade3', example: 'The two answers are very similar.' },
+      { word: 'successful', part: 'adj.', meaning: '成功的', grade: 'grade3', example: 'The event was successful because many people joined.' },
+      { word: 'together', part: 'adv.', meaning: '一起', grade: 'grade1', example: 'Let us work together on this project.' },
+      { word: 'understand', part: 'v.', meaning: '了解；理解', grade: 'grade1', example: 'Do you understand the question?' }
+    ];
+    const grammarNotes = {
+      grade1: [
+        { title: 'be 動詞與一般動詞', keywords: ['be動詞', '一般動詞', '助動詞'], rule: 'be 動詞表「是、在」；一般動詞描述動作。問句與否定句的助動詞用法不同。', example: 'I am a student. / I play basketball. / Do you like music?' },
+        { title: '現在簡單式', keywords: ['現在式', '第三人稱', '習慣'], rule: '習慣或事實用現在簡單式；主詞為第三人稱單數時，動詞通常加 s 或 es。', example: 'He goes to school by bus every day.' },
+        { title: '代名詞與所有格', keywords: ['代名詞', '所有格', '主格', '受格'], rule: '主格作主詞，受格放在動詞或介系詞後，所有格後面接名詞。', example: 'She helps me with my homework.' }
+      ],
+      grade2: [
+        { title: '過去簡單式', keywords: ['過去式', '過去簡單式', '不規則動詞'], rule: '描述過去已完成的動作；規則動詞加 -ed，不規則動詞要熟記變化。', example: 'We visited the museum last Saturday.' },
+        { title: '現在完成式', keywords: ['完成式', '現在完成', '經驗', '持續'], rule: 'have / has + 過去分詞，可表示經驗、持續或剛完成的動作。', example: 'I have lived here for five years.' },
+        { title: '不定詞與動名詞', keywords: ['不定詞', '動名詞', 'to V', 'V-ing'], rule: 'to + 原形動詞是不定詞；動詞 + -ing 可作名詞或接在特定動詞後。', example: 'She wants to learn English. / He enjoys reading.' }
+      ],
+      grade3: [
+        { title: '被動語態', keywords: ['被動', '被動語態', '過去分詞'], rule: 'be 動詞 + 過去分詞，重點放在「事情被做」而非誰做。時態由 be 動詞呈現。', example: 'The bridge was built more than 100 years ago.' },
+        { title: '關係代名詞', keywords: ['關代', '關係代名詞', 'who', 'which', 'that'], rule: 'who 指人，which 指物，that 可指人或物，用來連接主要子句與形容詞子句。', example: 'The girl who lives next door is my classmate.' },
+        { title: '感官動詞', keywords: ['感官', '感官動詞', 'see', 'watch', 'hear', 'feel'], rule: '感官動詞 + 受詞 + 原形動詞或 V-ing；原形強調完整過程，V-ing 強調正在發生。', example: 'I saw him cross the street. / We heard her singing.' },
+        { title: '假設語氣與條件句', keywords: ['假設', '條件句', 'if'], rule: 'If + 現在式，主要子句可用 will + 原形動詞表示未來可能發生的結果。', example: 'If it rains tomorrow, we will stay home.' },
+        { title: '分詞構句與連接詞', keywords: ['分詞', '連接詞', 'because', 'although', 'so'], rule: '用 because、although、so 等連接詞清楚表達原因、讓步與結果。', example: 'Although he was tired, he continued working.' }
+      ]
+    };
+    function seedQuestionBank() {
+      const base = Object.keys(gradeData).flatMap(grade => Object.entries(typeDefinitions).flatMap(([type, definition]) => definition.samples.map((content, index) => ({ id: `seed-${grade}-${type}-${index}`, grade, type, content, answer: '', level: grade === 'grade3' ? '會考' : '基礎' }))));
+      const curriculum = Object.entries(curriculumExamples).flatMap(([grade, items]) => items.map((item, index) => ({ ...item, id: `curriculum-${grade}-${item.type}-${index}`, grade, level: '課程練習' })));
+      return [...base, ...curriculum];
+    }
+    function readStorage(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (error) { return fallback; } }
+    let questionBank = readStorage(bankStorageKey, null);
+    const seededQuestionBank = seedQuestionBank();
+    if (!questionBank) questionBank = seededQuestionBank;
+    else { const existingIds = new Set(questionBank.map(item => item.id)); questionBank.push(...seededQuestionBank.filter(item => item.id.startsWith('curriculum-') && !existingIds.has(item.id))); }
+    let selectedQuestionIds = new Set(readStorage(selectedStorageKey, []));
+    let flashcards = readStorage(flashcardStorageKey, []);
+    let bankGradeFilter = 'all';
+    let currentGrade = 'grade1';
+    let generatedQuestions = [];
+    let practiceCards = [];
+    let practiceIndex = 0;
+    let practiceMode = 'meaning';
+    let practiceAnswered = false;
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => [...document.querySelectorAll(selector)];
+    function saveBank() { localStorage.setItem(bankStorageKey, JSON.stringify(questionBank)); }
+    saveBank();
+    function saveSelected() { localStorage.setItem(selectedStorageKey, JSON.stringify([...selectedQuestionIds])); }
+    function populateBankTypeOptions() { const options = Object.entries(typeDefinitions).map(([key, type]) => `<option value="${key}">${type.name}</option>`).join(''); $('#bankTypeFilter').insertAdjacentHTML('beforeend', options); $('#newQuestionType').innerHTML = options; }
+    function renderBank() {
+      const typeFilter = $('#bankTypeFilter').value; const search = $('#bankSearch').value.trim().toLowerCase();
+      const filtered = questionBank.filter(item => (bankGradeFilter === 'all' || item.grade === bankGradeFilter) && (typeFilter === 'all' || item.type === typeFilter) && (!search || `${item.content} ${item.answer}`.toLowerCase().includes(search)));
+      $('#bankCount').textContent = `顯示 ${filtered.length} / ${questionBank.length} 題`;
+      $('#bankList').innerHTML = filtered.length ? filtered.map(item => `<article class="bank-item"><input type="checkbox" data-bank-id="${item.id}" aria-label="勾選題目" ${selectedQuestionIds.has(item.id) ? 'checked' : ''}><span class="bank-item-type">${gradeData[item.grade].title.split('・')[0]}<br>${typeDefinitions[item.type].name}</span><span class="bank-item-content"><button class="bank-preview-trigger" data-preview-id="${item.id}" type="button">${escapeHtml(item.content)}</button>${item.answer ? `<small>答案：${escapeHtml(item.answer)}</small>` : ''}</span><span class="bank-item-meta">${item.level || '自建'}</span></article>`).join('') : '<p class="empty-state">目前沒有符合條件的題目，請新增題目或調整篩選。</p>';
+      $$('[data-bank-id]').forEach(input => input.addEventListener('change', () => { if (input.checked) selectedQuestionIds.add(input.dataset.bankId); else selectedQuestionIds.delete(input.dataset.bankId); saveSelected(); renderSelected(); }));
+      $$('[data-preview-id]').forEach(button => button.addEventListener('click', () => previewBankQuestion(button.dataset.previewId)));
+    }
+    function previewBankQuestion(questionId) {
+      const item = questionBank.find(question => question.id === questionId);
+      if (!item) return;
+      $('#questionDetail').innerHTML = `<h3>題目預覽</h3><p><strong>年級：</strong>${gradeData[item.grade].title}</p><p><strong>題型：</strong>${typeDefinitions[item.type].name}</p><p><strong>題目：</strong>${escapeHtml(item.content)}</p><p><strong>答案：</strong>${escapeHtml(item.answer || '尚未設定')}</p><p><strong>程度：</strong>${escapeHtml(item.level || '自建')}</p>`;
+      $('#questionDetail').classList.remove('hidden-view');
+    }
+    let ocrScriptPromise;
+    function loadOcrEngine() {
+      if (window.Tesseract) return Promise.resolve(window.Tesseract);
+      if (!ocrScriptPromise) ocrScriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        script.onload = () => resolve(window.Tesseract);
+        script.onerror = () => reject(new Error('無法載入文字辨識工具'));
+        document.head.appendChild(script);
+      });
+      return ocrScriptPromise;
+    }
+    async function recognizeQuestionImage() {
+      const file = $('#questionImage').files[0];
+      if (!file) return;
+      const button = $('#recognizeImageButton'); const status = $('#ocrStatus'); button.disabled = true; status.textContent = '正在載入文字辨識工具，首次使用可能需要一點時間...';
+      let worker;
+      try {
+        const tesseract = await loadOcrEngine();
+        worker = await tesseract.createWorker('eng+chi_tra', 1, { logger: message => { if (message.status === 'recognizing text') status.textContent = `正在辨識照片文字 ${Math.round(message.progress * 100)}%`; } });
+        const result = await worker.recognize(file);
+        const recognizedText = result.data.text.trim();
+        if (!recognizedText) { status.textContent = '沒有辨識到文字，請換用清晰、光線充足的照片。'; return; }
+        $('#newQuestionContent').value = recognizedText;
+        status.textContent = '辨識完成，請檢查題目文字後再儲存。';
+      } catch (error) {
+        status.textContent = '辨識失敗，請確認網路連線，或改用手動輸入。';
+      } finally {
+        if (worker) await worker.terminate();
+        button.disabled = false;
+      }
+    }
+    $('#questionImage').addEventListener('change', event => {
+      const file = event.target.files[0]; const preview = $('#imagePreview');
+      if (!file) { preview.removeAttribute('src'); preview.style.display = 'none'; $('#recognizeImageButton').disabled = true; return; }
+      if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
+      const objectUrl = URL.createObjectURL(file); preview.src = objectUrl; preview.dataset.objectUrl = objectUrl; preview.style.display = 'block'; $('#recognizeImageButton').disabled = false; $('#ocrStatus').textContent = '照片已載入，可以開始辨識。';
+    });
+    $('#recognizeImageButton').addEventListener('click', recognizeQuestionImage);
+    function renderSelected() {
+      const selected = questionBank.filter(item => selectedQuestionIds.has(item.id));
+      $('#selectedList').innerHTML = selected.length ? selected.map(item => `<label class="bank-item"><input type="checkbox" data-remove-id="${item.id}"><span class="bank-item-type">${gradeData[item.grade].title.split('・')[0]}<br>${typeDefinitions[item.type].name}</span><span class="bank-item-content">${escapeHtml(item.content)}${item.answer ? `<br><small>答案：${escapeHtml(item.answer)}</small>` : ''}</span><span class="bank-item-meta">已加入</span></label>`).join('') : '<p class="empty-state">還沒有自選題目。到「我的題庫」勾選題目，就會出現在這裡。</p>';
+      $$('[data-remove-id]').forEach(input => input.addEventListener('change', () => { selectedQuestionIds.delete(input.dataset.removeId); saveSelected(); renderSelected(); renderBank(); }));
+    }
+    function showView(viewId) { ['generatorView', 'bankView', 'selectedView', 'notesView', 'flashcardView'].forEach(id => document.getElementById(id).classList.toggle('hidden-view', id !== viewId)); $$('.switch-button').forEach(button => button.classList.toggle('active', button.dataset.view === viewId)); if (viewId === 'bankView') renderBank(); if (viewId === 'selectedView') renderSelected(); if (viewId === 'notesView') renderNotes(); if (viewId === 'flashcardView') renderFlashcards(); }
+
+    function saveFlashcards() { localStorage.setItem(flashcardStorageKey, JSON.stringify(flashcards)); }
+    function renderFlashcards() {
+      const search = $('#flashcardSearch').value.trim().toLowerCase();
+      const filtered = flashcards.filter(card => `${card.word} ${card.meaning} ${card.example}`.toLowerCase().includes(search));
+      $('#flashcardCount').textContent = `${flashcards.length} 張字卡`;
+      $('#flashcardList').innerHTML = filtered.length ? filtered.map(card => `<article class="flashcard"><button class="flashcard-remove" data-flashcard-id="${card.id}" title="移除字卡" aria-label="移除 ${escapeHtml(card.word)}">×</button><h3>${escapeHtml(card.word)}</h3><span class="word-meta">我的字卡</span><p class="flashcard-meaning">${escapeHtml(card.meaning)}</p>${card.example ? `<p class="flashcard-example">${escapeHtml(card.example)}</p>` : ''}</article>`).join('') : '<p class="empty-state">還沒有符合的字卡。先從左側加入一個你想加強的單字吧。</p>';
+      $$('[data-flashcard-id]').forEach(button => button.addEventListener('click', () => { flashcards = flashcards.filter(card => card.id !== button.dataset.flashcardId); saveFlashcards(); renderFlashcards(); if (practiceCards.length) practiceCards = practiceCards.filter(card => card.id !== button.dataset.flashcardId); }));
+    }
+    function showPracticeCard() {
+      const card = practiceCards[practiceIndex]; if (!card) return;
+      practiceAnswered = false; $('#practiceQuestion').textContent = practiceMode === 'meaning' ? card.meaning : card.word; $('#practiceDirection').textContent = practiceMode === 'meaning' ? '看中文，拼出英文' : '看英文，寫出中文'; $('#practiceProgress').textContent = `第 ${practiceIndex + 1} / ${practiceCards.length} 題`; $('#practiceInput').value = ''; $('#practiceInput').disabled = false; $('#practiceFeedback').textContent = ''; $('#practiceFeedback').className = 'practice-feedback'; $('#nextPracticeButton').classList.add('hidden-view'); $('#practiceInput').focus();
+    }
+    function startPractice() { if (!flashcards.length) { showToast('請先加入至少一張字卡'); return; } practiceCards = shuffle([...flashcards]); practiceIndex = 0; practiceMode = 'meaning'; $('#practiceSection').classList.remove('hidden-view'); showPracticeCard(); }
+    function checkPracticeAnswer() { const card = practiceCards[practiceIndex]; if (!card || practiceAnswered) return; const answer = $('#practiceInput').value.trim().toLowerCase(); const expected = (practiceMode === 'meaning' ? card.word : card.meaning).toLowerCase(); if (!answer) { $('#practiceFeedback').textContent = '請先輸入答案'; return; } practiceAnswered = true; $('#practiceInput').disabled = true; const correct = answer === expected; $('#practiceFeedback').textContent = correct ? '答對了！' : `答案是：${practiceMode === 'meaning' ? card.word : card.meaning}`; $('#practiceFeedback').className = `practice-feedback ${correct ? 'correct' : 'wrong'}`; $('#nextPracticeButton').classList.remove('hidden-view'); }
+    function nextPractice() { if (practiceIndex >= practiceCards.length - 1) { $('#practiceFeedback').textContent = '這輪完成！再按一次可以重新洗牌練習。'; $('#nextPracticeButton').classList.add('hidden-view'); return; } practiceIndex += 1; showPracticeCard(); }
+
+    function renderWords() {
+      const grade = $('#notesGradeFilter').value; const part = $('#wordPartFilter').value; const search = $('#wordSearch').value.trim().toLowerCase();
+      const filtered = studyWords.filter(item => (grade === 'all' || item.grade === grade) && (part === 'all' || item.part.includes(part)) && (!search || `${item.word} ${item.meaning} ${item.example}`.toLowerCase().includes(search))).sort((first, second) => { if (!search) return first.word.localeCompare(second.word); const firstText = first.word.toLowerCase(); const secondText = second.word.toLowerCase(); const firstIndex = firstText.indexOf(search); const secondIndex = secondText.indexOf(search); return (firstIndex < 0 ? 999 : firstIndex) - (secondIndex < 0 ? 999 : secondIndex) || first.word.localeCompare(second.word); });
+      $('#wordCount').textContent = `目前顯示 ${filtered.length} 個核心字彙示例・完整範圍可持續擴充至七千單字`;
+      $('#wordGrid').innerHTML = filtered.length ? filtered.map(item => `<article class="word-card"><h3>${highlightWord(item.word, search)}</h3><span class="word-meta">${item.part}・${gradeData[item.grade].title.split('・')[0]}</span><p class="word-meaning">${escapeHtml(item.meaning)}</p><p class="word-example">${escapeHtml(item.example)}</p></article>`).join('') : '<p class="empty-state">找不到符合的單字，試試其他關鍵字或篩選條件。</p>';
+    }
+    function highlightWord(word, search) { const safeWord = escapeHtml(word); if (!search || /[^a-z]/i.test(search)) return safeWord; const pattern = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'); return safeWord.replace(pattern, '<mark>$1</mark>'); }
+    function renderGrammar() {
+      const grade = $('#notesGradeFilter').value; const search = $('#grammarSearch').value.trim().toLowerCase(); const grades = grade === 'all' ? ['grade1', 'grade2', 'grade3'] : [grade];
+      const matches = grades.flatMap(key => grammarNotes[key].map((item, index) => ({ key, item, index }))).filter(({ item }) => !search || `${item.title} ${item.rule} ${item.example} ${item.keywords.join(' ')}`.toLowerCase().includes(search));
+      $('#grammarCount').textContent = search ? `找到 ${matches.length} 個文法主題` : `共 ${matches.length} 個文法主題・輸入關鍵字即可篩選`;
+      $('#grammarList').innerHTML = matches.length ? matches.map(({ key, item, index }) => `<article class="grammar-card"><h3><span>${gradeData[key].title.split('・')[0]} ${index + 1}</span>${item.title}</h3><p class="grammar-rule">${item.rule}</p><p class="grammar-example">例句：${item.example}</p></article>`).join('') : '<p class="empty-state">找不到相關文法，試試「感官」、「被動」或「完成式」。</p>';
+    }
+    function populateGrammarSuggestions() { const suggestions = [...new Set(Object.values(grammarNotes).flat().flatMap(item => item.keywords))]; $('#grammarSuggestions').innerHTML = suggestions.map(keyword => `<option value="${escapeHtml(keyword)}"></option>`).join(''); }
+    function renderNotes() { const grammar = !$('#grammarContent').classList.contains('hidden-view'); renderWords(); renderGrammar(); if (grammar) $('#wordGrid').innerHTML = ''; }
+
+    function renderTypes() {
+      const defaults = gradeData[currentGrade].defaults;
+      $('#typeGrid').innerHTML = Object.entries(typeDefinitions).map(([key, type]) => {
+        const count = defaults[key] || 0;
+        return `<div class="type-card ${count > 0 ? 'selected' : ''}"><label><input type="checkbox" data-type="${key}" ${count > 0 ? 'checked' : ''}><span class="type-name">${type.name}</span></label><p class="type-desc">${type.desc}</p><div class="type-count"><span>題數</span><input class="count-input" type="number" min="0" max="30" value="${count}" data-count="${key}"></div></div>`;
+      }).join('');
+      $$('.type-card input[type="checkbox"]').forEach(input => input.addEventListener('change', () => toggleType(input.dataset.type, input.checked)));
+      $$('.count-input').forEach(input => input.addEventListener('input', () => syncCount(input.dataset.count, input.value)));
+      updateSummary();
+    }
+    function toggleType(type, enabled) { const input = document.querySelector(`[data-count="${type}"]`); input.value = enabled ? Math.max(1, Number(input.value)) : 0; input.closest('.type-card').classList.toggle('selected', enabled); updateSummary(); }
+    function syncCount(type, value) { const card = document.querySelector(`[data-count="${type}"]`).closest('.type-card'); const checkbox = card.querySelector('input[type="checkbox"]'); const count = Math.max(0, Math.min(30, Number(value) || 0)); document.querySelector(`[data-count="${type}"]`).value = count; checkbox.checked = count > 0; card.classList.toggle('selected', count > 0); updateSummary(); }
+    function getCounts() { return Object.fromEntries(Object.keys(typeDefinitions).map(key => [key, Number(document.querySelector(`[data-count="${key}"]`).value) || 0])); }
+    function calculateScores(counts) {
+      const weightedTotal = Object.entries(counts).reduce((sum, [key, count]) => sum + count * typeDefinitions[key].base, 0);
+      const scores = {};
+      let assigned = 0;
+      const active = Object.entries(counts).filter(([, count]) => count > 0);
+      active.forEach(([key, count], index) => { const points = index === active.length - 1 ? 100 - assigned : Math.max(1, Math.round((count * typeDefinitions[key].base / weightedTotal) * 100)); scores[key] = Number((points / count).toFixed(1)); assigned += points; });
+      return scores;
+    }
+    function updateSummary() {
+      const counts = getCounts(); const scores = calculateScores(counts); const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      $('#totalCount').textContent = `${total} 題`; $('#averageScore').textContent = `${total ? (100 / total).toFixed(1) : '0.0'} 分`;
+      $('#allocation').innerHTML = Object.entries(counts).filter(([, count]) => count > 0).map(([key, count]) => `<div class="allocation-row"><div><div class="allocation-label"><span>${typeDefinitions[key].name}</span><span>${count} 題</span></div><div class="bar"><i style="width:${Math.min(100, count * 8)}%"></i></div></div><div class="allocation-points">${(scores[key] * count).toFixed(0)} 分</div></div>`).join('') || '<p style="color:var(--muted);font-size:12px">請至少選擇一種題型</p>';
+    }
+    function shuffle(items) { return items.sort(() => Math.random() - 0.5); }
+    function nextSample(key, sampleQueues) {
+      if (!sampleQueues[key].length) sampleQueues[key] = shuffle([...Array(typeDefinitions[key].samples.length).keys()]);
+      return typeDefinitions[key].samples[sampleQueues[key].pop()];
+    }
+    function generateQuestions() {
+      const counts = getCounts(); const scores = calculateScores(counts); generatedQuestions = []; let number = 1;
+      const sampleQueues = Object.fromEntries(Object.keys(typeDefinitions).map(key => [key, shuffle([...Array(typeDefinitions[key].samples.length).keys()])]));
+      const selected = Object.entries(counts).filter(([, count]) => count > 0);
+      const fixedByType = Object.fromEntries(Object.keys(typeDefinitions).map(key => [key, questionBank.filter(item => item.grade === currentGrade && item.type === key && selectedQuestionIds.has(item.id))]));
+      const addQuestions = (key, count) => { const fixed = fixedByType[key].slice(0, count); fixed.forEach(item => generatedQuestions.push(makeQuestion(key, number++, scores[key], item.content))); for (let i = fixed.length; i < count; i++) generatedQuestions.push(makeQuestion(key, number++, scores[key], nextSample(key, sampleQueues))); };
+      if ($('#questionOrder').value === 'mixed') { for (let round = 0; round < Math.max(...selected.map(([, count]) => count), 0); round++) selected.forEach(([key, count]) => { if (round < count) { const fixed = fixedByType[key][round]; generatedQuestions.push(makeQuestion(key, number++, scores[key], fixed ? fixed.content : nextSample(key, sampleQueues))); } }); }
+      else selected.forEach(([key, count]) => addQuestions(key, count));
+      $('#questionList').innerHTML = generatedQuestions.length ? generatedQuestions.map(q => `<div class="question-row"><div class="q-number">${String(q.number).padStart(2, '0')}</div><div class="q-type">${q.type}</div><div class="q-content">${q.content}</div><div class="q-score">${q.score} 分</div></div>`).join('') : '<p style="color:var(--muted)">尚未選擇題型。</p>';
+      $('#previewSection').classList.add('visible'); $('#previewSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast(`已產生 ${generatedQuestions.length} 題，總分 100 分`);
+    }
+    function makeQuestion(key, number, score, content) { const definition = typeDefinitions[key]; return { number, type: definition.name, content, score: Number(score.toFixed(1)) }; }
+    function exportWord() {
+      if (!generatedQuestions.length) generateQuestions();
+      const title = $('#paperTitle').value || '國中英語練習卷'; const grade = gradeData[currentGrade].title; const rows = generatedQuestions.map(q => `<tr><td>${q.number}</td><td>${q.type}</td><td>${q.content}</td><td>${q.score} 分</td></tr>`).join('');
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:Arial,"Microsoft JhengHei",sans-serif;color:#17252f}h1{text-align:center}p{text-align:center;color:#667}table{width:100%;border-collapse:collapse}th,td{border:1px solid #b9c5c2;padding:9px;text-align:left}th{background:#e6f2ed}</style></head><body><h1>${escapeHtml(title)}</h1><p>${grade}　總分：100 分　題數：${generatedQuestions.length} 題</p><table><thead><tr><th>題號</th><th>題型</th><th>題目</th><th>配分</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+      const blob = new Blob([html], { type: 'application/msword;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `${title.replace(/[\\/:*?"<>|]/g, '') || '英語考題'}.doc`; link.click(); URL.revokeObjectURL(link.href); showToast('Word 題目檔已下載');
+    }
+    function escapeHtml(text) { return text.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char])); }
+    function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600); }
+    $$('.grade-tab').forEach(tab => tab.addEventListener('click', () => { currentGrade = tab.dataset.grade; $$('.grade-tab').forEach(item => item.classList.toggle('active', item === tab)); $('#gradeTitle').textContent = gradeData[currentGrade].title; $('#gradeDescription').textContent = gradeData[currentGrade].description; renderTypes(); }));
+    $$('.switch-button').forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
+    $('#flashcardForm').addEventListener('submit', event => { event.preventDefault(); const word = $('#flashcardWord').value.trim(); const meaning = $('#flashcardMeaning').value.trim(); const example = $('#flashcardExample').value.trim(); if (!word || !meaning) return; const existing = flashcards.find(card => card.word.toLowerCase() === word.toLowerCase()); if (existing) { showToast('這個單字已經在你的字卡裡'); return; } flashcards.unshift({ id: `flashcard-${Date.now()}`, word, meaning, example }); saveFlashcards(); event.target.reset(); renderFlashcards(); showToast(`已加入「${word}」字卡`); });
+    $('#flashcardSearch').addEventListener('input', renderFlashcards); $('#startPracticeButton').addEventListener('click', startPractice); $('#checkPracticeButton').addEventListener('click', checkPracticeAnswer); $('#nextPracticeButton').addEventListener('click', nextPractice); $('#practiceInput').addEventListener('keydown', event => { if (event.key === 'Enter') checkPracticeAnswer(); }); $('#practiceModeButton').addEventListener('click', () => { practiceMode = practiceMode === 'meaning' ? 'word' : 'meaning'; if (practiceCards.length) showPracticeCard(); }); $('#closePracticeButton').addEventListener('click', () => $('#practiceSection').classList.add('hidden-view'));
+    $$('.notes-tab').forEach(tab => tab.addEventListener('click', () => { const grammar = tab.dataset.notesTab === 'grammar'; $$('.notes-tab').forEach(item => item.classList.toggle('active', item === tab)); $('#wordsContent').classList.toggle('hidden-view', grammar); $('#grammarContent').classList.toggle('hidden-view', !grammar); $('#notesTitle').textContent = grammar ? '國中三年文法重點' : '七千單字範圍'; $('#notesDescription').textContent = grammar ? '依國一到國三整理核心句型、時態與會考常見文法觀念。' : '依年級瀏覽國中常用核心字彙，搭配詞性、中文與例句記憶。'; renderNotes(); }));
+    $('#notesGradeFilter').addEventListener('change', renderNotes); $('#wordSearch').addEventListener('input', renderWords); $('#wordPartFilter').addEventListener('change', renderWords); $('#grammarSearch').addEventListener('input', renderGrammar);
+    $('#generateButton').addEventListener('click', generateQuestions); $('#exportButton').addEventListener('click', exportWord); $('#clearPreview').addEventListener('click', () => $('#previewSection').classList.remove('visible'));
+    $$('.filter-tab').forEach(tab => tab.addEventListener('click', () => { bankGradeFilter = tab.dataset.bankGrade; $$('.filter-tab').forEach(item => item.classList.toggle('active', item === tab)); renderBank(); }));
+    $('#bankTypeFilter').addEventListener('change', renderBank); $('#bankSearch').addEventListener('input', renderBank);
+    $('#addSelectedButton').addEventListener('click', () => { saveSelected(); renderSelected(); showToast(`${selectedQuestionIds.size} 題已加入我的考卷`); });
+    $('#removeSelectedButton').addEventListener('click', () => { $$('[data-remove-id]:checked').forEach(input => selectedQuestionIds.delete(input.dataset.removeId)); saveSelected(); renderSelected(); renderBank(); showToast('已移除勾選的自選題'); });
+    $('#saveQuestionButton').addEventListener('click', () => { const content = $('#newQuestionContent').value.trim(); if (!content) { showToast('請先輸入題目內容'); return; } const item = { id: `custom-${Date.now()}`, grade: $('#newQuestionGrade').value, type: $('#newQuestionType').value, content, answer: $('#newQuestionAnswer').value.trim(), level: '自建' }; questionBank.push(item); saveBank(); selectedQuestionIds.add(item.id); saveSelected(); $('#newQuestionContent').value = ''; $('#newQuestionAnswer').value = ''; renderBank(); renderSelected(); showToast('題目已儲存並加入我的考卷'); });
+    $('#importQuestionFile').addEventListener('change', event => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const raw = String(reader.result); const rows = file.name.toLowerCase().endsWith('.json') ? JSON.parse(raw) : raw.split(/\r?\n/).slice(1).map(line => { const [grade, type, content, answer = '', level = '匯入'] = line.split(','); return { grade, type, content, answer, level }; }); const imported = rows.filter(item => gradeData[item.grade] && typeDefinitions[item.type] && item.content).map((item, index) => ({ ...item, id: `import-${Date.now()}-${index}` })); questionBank.push(...imported); saveBank(); renderBank(); showToast(`已匯入 ${imported.length} 題`); } catch (error) { showToast('匯入失敗，請檢查 JSON 或 CSV 格式'); } event.target.value = ''; }; reader.readAsText(file, 'utf-8'); });
+    $('#loadDemo').addEventListener('click', () => { currentGrade = 'grade3'; $$('.grade-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.grade === currentGrade)); $('#gradeTitle').textContent = gradeData[currentGrade].title; $('#gradeDescription').textContent = gradeData[currentGrade].description; renderTypes(); generateQuestions(); showToast('已載入國三會考示範題型'); });
+    $('#resetAll').addEventListener('click', () => { currentGrade = 'grade1'; $$('.grade-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.grade === currentGrade)); $('#gradeTitle').textContent = gradeData[currentGrade].title; $('#gradeDescription').textContent = gradeData[currentGrade].description; $('#paperTitle').value = '國中英語練習卷'; $('#questionOrder').value = 'grouped'; renderTypes(); $('#previewSection').classList.remove('visible'); showToast('設定已清除'); });
+    populateBankTypeOptions(); populateGrammarSuggestions(); renderTypes(); renderSelected(); renderWords(); renderGrammar(); renderFlashcards();
+  </script>
+</body>
+</html>
